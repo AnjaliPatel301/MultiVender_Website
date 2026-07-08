@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiTruck, FiPackage, FiCheck, FiClock, FiXCircle, FiLogOut, FiMapPin, FiCamera, FiChevronRight } from 'react-icons/fi';
+import { FiTruck, FiPackage, FiCheck, FiClock, FiXCircle, FiLogOut, FiMapPin, FiCamera, FiChevronRight, FiX } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { courierAPI } from '../../services/api';
 import { useCourierStore } from '../../store/courierStore';
@@ -24,49 +24,99 @@ const FAILURE_REASONS = [
   { value: 'reschedule_requested', label: 'Reschedule Requested' },
 ];
 
-function CourierSidebar() {
+function CourierSidebar({ mobileOpen, onClose }) {
   const { courier, courierLogout } = useCourierStore();
   const navigate = useNavigate();
   const handleLogout = () => { courierLogout(); navigate('/courier/login'); toast.success('Logged out!'); };
 
+  const navItems = [
+    { to: '/courier/dashboard', icon: '📊', label: 'Dashboard' },
+    { to: '/courier/dashboard?tab=assigned', icon: '📦', label: 'Assigned Orders' },
+    { to: '/courier/dashboard?tab=pickup', icon: '🏃', label: 'Pickups' },
+    { to: '/courier/dashboard?tab=transit', icon: '🚚', label: 'In Transit' },
+    { to: '/courier/dashboard?tab=delivered', icon: '✅', label: 'Delivered' },
+  ];
+
   return (
-    <aside className="w-64 bg-gray-900 min-h-screen flex flex-col fixed left-0 top-0 z-40">
-      <div className="p-6 border-b border-gray-800">
-        <div className="flex items-center gap-2 mb-1">
-          <FiTruck className="w-6 h-6 text-blue-400" />
-          <span className="font-bold text-white text-lg">Courier Panel</span>
-        </div>
-        <p className="text-gray-400 text-xs">{courier?.companyName}</p>
-      </div>
-      <nav className="flex-1 p-4 space-y-1">
-        {[
-          { to: '/courier/dashboard', icon: '📊', label: 'Dashboard' },
-          { to: '/courier/dashboard?tab=assigned', icon: '📦', label: 'Assigned Orders' },
-          { to: '/courier/dashboard?tab=pickup', icon: '🏃', label: 'Pickups' },
-          { to: '/courier/dashboard?tab=transit', icon: '🚚', label: 'In Transit' },
-          { to: '/courier/dashboard?tab=delivered', icon: '✅', label: 'Delivered' },
-        ].map(item => (
-          <Link key={item.label} to={item.to}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition-all text-sm font-medium">
-            <span>{item.icon}</span>{item.label}
-          </Link>
-        ))}
-      </nav>
-      <div className="p-4 border-t border-gray-800">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-            {courier?.deliveryPersonName?.charAt(0)}
+    <>
+      <aside className="hidden lg:flex w-64 bg-gray-900 min-h-screen flex-col fixed left-0 top-0 z-40">
+        <div className="p-6 border-b border-gray-800">
+          <div className="flex items-center gap-2 mb-1">
+            <FiTruck className="w-6 h-6 text-blue-400" />
+            <span className="font-bold text-white text-lg">Courier Panel</span>
           </div>
-          <div>
-            <p className="text-white text-xs font-medium">{courier?.deliveryPersonName}</p>
-            <p className="text-gray-400 text-xs">Courier Partner</p>
-          </div>
+          <p className="text-gray-400 text-xs">{courier?.companyName}</p>
         </div>
-        <button onClick={handleLogout} className="w-full flex items-center gap-2 text-red-400 hover:text-red-300 text-sm px-2 py-2 rounded-lg hover:bg-gray-800">
-          <FiLogOut className="w-4 h-4" /> Logout
-        </button>
-      </div>
-    </aside>
+        <nav className="flex-1 p-4 space-y-1">
+          {navItems.map(item => (
+            <Link key={item.label} to={item.to}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition-all text-sm font-medium">
+              <span>{item.icon}</span>{item.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="p-4 border-t border-gray-800">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+              {courier?.deliveryPersonName?.charAt(0)}
+            </div>
+            <div>
+              <p className="text-white text-xs font-medium">{courier?.deliveryPersonName}</p>
+              <p className="text-gray-400 text-xs">Courier Partner</p>
+            </div>
+          </div>
+          <button onClick={handleLogout} className="w-full flex items-center gap-2 text-red-400 hover:text-red-300 text-sm px-2 py-2 rounded-lg hover:bg-gray-800">
+            <FiLogOut className="w-4 h-4" /> Logout
+          </button>
+        </div>
+      </aside>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}
+              className="fixed inset-0 bg-black/40 z-30 lg:hidden" />
+            <motion.aside initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }} transition={{ type: 'spring', damping: 25 }}
+              className="fixed left-0 top-0 z-40 w-72 max-w-[85vw] h-screen bg-gray-900 flex flex-col lg:hidden">
+              <div className="p-6 border-b border-gray-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 mb-1">
+                    <FiTruck className="w-6 h-6 text-blue-400" />
+                    <span className="font-bold text-white text-lg">Courier Panel</span>
+                  </div>
+                  <button onClick={onClose} aria-label="Close menu" className="text-gray-400 hover:text-white p-1 rounded-full hover:bg-gray-800">
+                    <FiX className="w-5 h-5" />
+                  </button>
+                </div>
+                <p className="text-gray-400 text-xs">{courier?.companyName}</p>
+              </div>
+              <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+                {navItems.map(item => (
+                  <Link key={item.label} to={item.to} onClick={onClose}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition-all text-sm font-medium">
+                    <span>{item.icon}</span>{item.label}
+                  </Link>
+                ))}
+              </nav>
+              <div className="p-4 border-t border-gray-800">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    {courier?.deliveryPersonName?.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-white text-xs font-medium">{courier?.deliveryPersonName}</p>
+                    <p className="text-gray-400 text-xs">Courier Partner</p>
+                  </div>
+                </div>
+                <button onClick={handleLogout} className="w-full flex items-center gap-2 text-red-400 hover:text-red-300 text-sm px-2 py-2 rounded-lg hover:bg-gray-800">
+                  <FiLogOut className="w-4 h-4" /> Logout
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -79,6 +129,7 @@ export default function CourierDashboard() {
   const [selected, setSelected] = useState(null);
   const [trackingForm, setTrackingForm] = useState({ status: '', location: '', note: '', failureReason: '' });
   const [updating, setUpdating] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -119,21 +170,26 @@ export default function CourierDashboard() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <CourierSidebar />
-      <main className="ml-64 flex-1 p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Courier Dashboard</h1>
-            <p className="text-sm text-gray-500">Welcome back, {courier?.deliveryPersonName}</p>
+      <CourierSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <main className="lg:ml-64 flex-1 p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={() => setMobileOpen(true)} className="lg:hidden p-2 rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm shrink-0">
+              ☰
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Courier Dashboard</h1>
+              <p className="text-sm text-gray-500 truncate">Welcome back, {courier?.deliveryPersonName}</p>
+            </div>
           </div>
-          <button onClick={fetchData} className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50">
+          <button onClick={fetchData} className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 bg-white w-full sm:w-auto">
             Refresh
           </button>
         </div>
 
         {/* Stats */}
         {stats && (
-          <div className="grid grid-cols-6 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-4 mb-6">
             {statCards.map(s => {
               const Icon = s.icon;
               return (
@@ -149,21 +205,23 @@ export default function CourierDashboard() {
         )}
 
         {/* Filters */}
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {[
-            { value: '', label: 'All Orders' },
-            { value: 'ready_for_pickup', label: 'Ready for Pickup' },
-            { value: 'picked_up', label: 'Picked Up' },
-            { value: 'in_transit', label: 'In Transit' },
-            { value: 'out_for_delivery', label: 'Out for Delivery' },
-            { value: 'delivered', label: 'Delivered' },
-            { value: 'failed_delivery', label: 'Failed' },
-          ].map(f => (
-            <button key={f.value} onClick={() => setStatusFilter(f.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${statusFilter === f.value ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'}`}>
-              {f.label}
-            </button>
-          ))}
+        <div className="overflow-x-auto pb-1 mb-4">
+          <div className="flex gap-2 min-w-max">
+            {[
+              { value: '', label: 'All Orders' },
+              { value: 'ready_for_pickup', label: 'Ready for Pickup' },
+              { value: 'picked_up', label: 'Picked Up' },
+              { value: 'in_transit', label: 'In Transit' },
+              { value: 'out_for_delivery', label: 'Out for Delivery' },
+              { value: 'delivered', label: 'Delivered' },
+              { value: 'failed_delivery', label: 'Failed' },
+            ].map(f => (
+              <button key={f.value} onClick={() => setStatusFilter(f.value)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${statusFilter === f.value ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'}`}>
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Orders */}
@@ -179,9 +237,9 @@ export default function CourierDashboard() {
             <div className="divide-y divide-gray-100">
               {orders.map(order => (
                 <div key={order._id} className="p-4 hover:bg-gray-50">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span className="font-mono text-sm font-semibold text-gray-900">#{order.orderNumber}</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           order.status === 'delivered' ? 'bg-green-100 text-green-700' :
@@ -190,7 +248,7 @@ export default function CourierDashboard() {
                         }`}>{order.status?.replace(/_/g, ' ')}</span>
                         {order.trackingNumber && <span className="text-xs text-gray-500">TRK: {order.trackingNumber}</span>}
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                         <div>
                           <p className="text-xs text-gray-500">Customer</p>
                           <p className="font-medium text-gray-900">{order.user?.name}</p>
@@ -198,17 +256,17 @@ export default function CourierDashboard() {
                         </div>
                         <div>
                           <p className="text-xs text-gray-500">Delivery Address</p>
-                          <p className="text-gray-700 text-xs">{order.shippingAddress?.street}, {order.shippingAddress?.city}</p>
-                          <p className="text-gray-700 text-xs">{order.shippingAddress?.state} - {order.shippingAddress?.pincode}</p>
+                          <p className="text-gray-700 text-xs break-words">{order.shippingAddress?.street}, {order.shippingAddress?.city}</p>
+                          <p className="text-gray-700 text-xs break-words">{order.shippingAddress?.state} - {order.shippingAddress?.pincode}</p>
                         </div>
                       </div>
-                      <div className="mt-2 text-xs text-gray-500">
+                      <div className="mt-2 text-xs text-gray-500 break-words">
                         {order.items?.length} item(s) · ₹{order.totalPrice} · {order.paymentMethod?.toUpperCase()}
                       </div>
                     </div>
                     {order.status !== 'delivered' && (
                       <button onClick={() => { setSelected(order); setTrackingForm({ status: '', location: '', note: '', failureReason: '' }); }}
-                        className="ml-4 flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors">
+                        className="w-full sm:w-auto sm:ml-4 flex items-center justify-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors">
                         Update Status <FiChevronRight className="w-3 h-3" />
                       </button>
                     )}
@@ -222,9 +280,9 @@ export default function CourierDashboard() {
         {/* Update Tracking Modal */}
         <AnimatePresence>
           {selected && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-2xl p-6 max-w-lg w-full">
+                className="bg-white rounded-2xl p-4 sm:p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-bold">Update Tracking Status</h2>
                   <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
@@ -265,12 +323,12 @@ export default function CourierDashboard() {
                       className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none" />
                   </div>
                 </div>
-                <div className="flex gap-3 mt-6">
+                <div className="flex flex-col sm:flex-row gap-3 mt-6">
                   <button onClick={handleUpdateTracking} disabled={updating}
-                    className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50">
+                    className="w-full sm:flex-1 bg-blue-600 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50">
                     {updating ? 'Updating...' : 'Update Tracking'}
                   </button>
-                  <button onClick={() => setSelected(null)} className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+                  <button onClick={() => setSelected(null)} className="w-full sm:w-auto px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
                     Cancel
                   </button>
                 </div>

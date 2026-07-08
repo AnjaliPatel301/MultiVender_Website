@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiRefreshCw } from 'react-icons/fi';
 import { sellerAPI } from '../../services/api';
 import toast from 'react-hot-toast';
+import SellerLayout from './SellerLayout';
 
 const statusColors = {
   pending: 'bg-yellow-100 text-yellow-700',
@@ -20,7 +21,8 @@ export default function SellerReturns() {
   }, []);
 
   return (
-    <div className="p-8">
+    <SellerLayout>
+      <div className="p-0 sm:p-2 lg:p-4">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Return Requests</h1>
 
       {loading ? (
@@ -63,6 +65,7 @@ export default function SellerReturns() {
           </table>
         </div>
       )}
-    </div>
+      </div>
+    </SellerLayout>
   );
 }

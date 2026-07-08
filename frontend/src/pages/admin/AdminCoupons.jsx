@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiPlus, FiEdit2, FiTrash2, FiX } from 'react-icons/fi';
 import { couponAPI } from '../../services/api';
-import { AdminNav } from './AdminDashboard';
+import { AdminPageWrapper } from './AdminDashboard';
 import { formatDateShort } from '../../utils/helpers';
 import Button from '../../components/ui/Button';
 import toast from 'react-hot-toast';
@@ -53,24 +53,22 @@ export default function AdminCoupons() {
   const set = (key) => (e) => setForm(p => ({ ...p, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminNav />
-      <main className="lg:ml-64 flex-1 p-6">
-        <div className="flex items-center justify-between mb-8">
+    <AdminPageWrapper title="Coupons" subtitle={`${coupons.length} total coupons`}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-8">
           <div>
-            <h1 className="font-display text-3xl font-bold text-gray-900">Coupons</h1>
-            <p className="text-gray-500 mt-1">{coupons.length} total coupons</p>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900">Coupons</h1>
+            <p className="text-sm sm:text-base text-gray-500 mt-1">{coupons.length} total coupons</p>
           </div>
-          <Button variant="primary" onClick={openAdd}><FiPlus className="w-4 h-4" /> Add Coupon</Button>
+          <Button variant="primary" onClick={openAdd} className="w-full sm:w-auto justify-center"><FiPlus className="w-4 h-4" /> Add Coupon</Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-white rounded-2xl h-36 animate-pulse" />)
           ) : coupons.map(coupon => (
             <motion.div key={coupon._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               className={`bg-white rounded-2xl p-5 shadow-sm border-2 ${coupon.isActive ? 'border-red-200' : 'border-gray-100 opacity-60'}`}>
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex items-start justify-between gap-3 mb-3">
                 <div>
                   <code className="text-lg font-bold text-red-700 bg-red-50 px-3 py-1 rounded-lg">{coupon.code}</code>
                   <p className="text-xs text-gray-500 mt-2">{coupon.description}</p>
@@ -96,17 +94,17 @@ export default function AdminCoupons() {
         </div>
 
         {showForm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl">
+              className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-semibold text-gray-800">{editId ? 'Edit Coupon' : 'Add Coupon'}</h3>
-                <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 rounded-lg"><FiX /></button>
+                <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 rounded-lg" aria-label="Close form"><FiX /></button>
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2"><label className="text-xs font-medium text-gray-500 uppercase mb-1 block">Coupon Code *</label><input value={form.code} onChange={set('code')} required className="input-field text-sm uppercase" placeholder="WELCOME10" /></div>
-                  <div className="col-span-2"><label className="text-xs font-medium text-gray-500 uppercase mb-1 block">Description</label><input value={form.description} onChange={set('description')} className="input-field text-sm" placeholder="10% off on first order" /></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2"><label className="text-xs font-medium text-gray-500 uppercase mb-1 block">Coupon Code *</label><input value={form.code} onChange={set('code')} required className="input-field text-sm uppercase" placeholder="WELCOME10" /></div>
+                  <div className="sm:col-span-2"><label className="text-xs font-medium text-gray-500 uppercase mb-1 block">Description</label><input value={form.description} onChange={set('description')} className="input-field text-sm" placeholder="10% off on first order" /></div>
                   <div><label className="text-xs font-medium text-gray-500 uppercase mb-1 block">Discount Type</label>
                     <select value={form.discountType} onChange={set('discountType')} className="input-field text-sm">
                       <option value="percentage">Percentage (%)</option>
@@ -118,11 +116,11 @@ export default function AdminCoupons() {
                   <div><label className="text-xs font-medium text-gray-500 uppercase mb-1 block">Max Discount (₹)</label><input type="number" value={form.maxDiscount} onChange={set('maxDiscount')} min={0} className="input-field text-sm" placeholder="No limit" /></div>
                   <div><label className="text-xs font-medium text-gray-500 uppercase mb-1 block">Usage Limit</label><input type="number" value={form.usageLimit} onChange={set('usageLimit')} min={1} className="input-field text-sm" /></div>
                   <div><label className="text-xs font-medium text-gray-500 uppercase mb-1 block">Expires At</label><input type="date" value={form.expiresAt} onChange={set('expiresAt')} className="input-field text-sm" /></div>
-                  <div className="col-span-2">
+                  <div className="sm:col-span-2">
                     <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.isActive} onChange={set('isActive')} className="w-4 h-4 text-red-600" /><span className="text-sm text-gray-700">Active</span></label>
                   </div>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
                   <Button type="submit" variant="primary" fullWidth loading={saving}>{editId ? 'Update' : 'Create'} Coupon</Button>
                 </div>
@@ -130,7 +128,6 @@ export default function AdminCoupons() {
             </motion.div>
           </div>
         )}
-      </main>
-    </div>
+    </AdminPageWrapper>
   );
 }

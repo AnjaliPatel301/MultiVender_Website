@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiCheck, FiX, FiEye, FiChevronDown, FiDollarSign } from 'react-icons/fi';
 import { adminAPI } from '../../services/api';
-import { AdminNav } from './AdminDashboard';
+import { AdminPageWrapper } from './AdminDashboard';
 import toast from 'react-hot-toast';
 
 const STATUS_CONFIG = {
@@ -60,37 +60,35 @@ export default function AdminWithdrawals() {
   const completedTotal = withdrawals.filter(w => w.status === 'completed').reduce((s, w) => s + w.amount, 0);
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminNav />
-      <main className="lg:ml-64 flex-1 p-6">
-        <div className="flex items-center justify-between mb-8">
+    <AdminPageWrapper title="Withdrawals" subtitle={`${total} withdrawal requests`}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-2">
           <div>
-            <h1 className="font-display text-3xl font-bold text-gray-900">Withdrawals</h1>
-            <p className="text-gray-500 mt-1">{total} withdrawal requests</p>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900">Withdrawals</h1>
+            <p className="text-gray-500 mt-1 text-sm sm:text-base">{total} withdrawal requests</p>
           </div>
         </div>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-yellow-50 rounded-2xl p-5">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="bg-yellow-50 rounded-2xl p-4 sm:p-5">
             <p className="text-xs text-yellow-700 font-medium">Pending Amount</p>
-            <p className="text-2xl font-bold text-yellow-800 mt-1">{fmt(pendingTotal)}</p>
+            <p className="text-xl sm:text-2xl font-bold text-yellow-800 mt-1 break-words">{fmt(pendingTotal)}</p>
           </div>
-          <div className="bg-green-50 rounded-2xl p-5">
+          <div className="bg-green-50 rounded-2xl p-4 sm:p-5">
             <p className="text-xs text-green-700 font-medium">Completed (All Time)</p>
-            <p className="text-2xl font-bold text-green-800 mt-1">{fmt(completedTotal)}</p>
+            <p className="text-xl sm:text-2xl font-bold text-green-800 mt-1 break-words">{fmt(completedTotal)}</p>
           </div>
-          <div className="bg-blue-50 rounded-2xl p-5">
+          <div className="bg-blue-50 rounded-2xl p-4 sm:p-5 col-span-1 xs:col-span-2 sm:col-span-1">
             <p className="text-xs text-blue-700 font-medium">Total Requests</p>
-            <p className="text-2xl font-bold text-blue-800 mt-1">{total}</p>
+            <p className="text-xl sm:text-2xl font-bold text-blue-800 mt-1">{total}</p>
           </div>
         </div>
 
         {/* Filter */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="relative">
+        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+          <div className="relative w-full sm:w-auto">
             <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-              className="pl-4 pr-8 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none bg-white appearance-none">
+              className="w-full sm:w-auto pl-4 pr-8 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none bg-white appearance-none">
               <option value="">All Status</option>
               {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
@@ -98,8 +96,8 @@ export default function AdminWithdrawals() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Table (desktop / tablet) */}
+        <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-100">
@@ -154,12 +152,43 @@ export default function AdminWithdrawals() {
           </div>
         </div>
 
+        {/* Card list (mobile) */}
+        <div className="sm:hidden space-y-3">
+          {loading ? Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-24 bg-gray-100 animate-pulse rounded-2xl" />
+          )) : withdrawals.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-gray-100 text-center py-16 text-gray-400">
+              <FiDollarSign className="w-10 h-10 mx-auto mb-3 opacity-50" />
+              <p className="font-medium">No withdrawal requests</p>
+            </div>
+          ) : withdrawals.map(w => {
+            const cfg = STATUS_CONFIG[w.status] || STATUS_CONFIG.pending;
+            return (
+              <button key={w._id} onClick={() => openModal(w)}
+                className="w-full text-left bg-white rounded-2xl shadow-sm border border-gray-100 p-4 active:bg-gray-50 transition-colors">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-gray-800 truncate">{w.seller?.user?.name || '—'}</p>
+                    <p className="text-xs text-gray-400 truncate">{w.seller?.shopName}</p>
+                  </div>
+                  <span className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${cfg.color}`}>{cfg.label}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-lg font-bold text-gray-900">{fmt(w.amount)}</p>
+                  <p className="text-xs text-gray-500">{new Date(w.requestedAt).toLocaleDateString('en-IN')}</p>
+                </div>
+                <p className="text-xs text-gray-500 capitalize mt-1">{w.paymentMethod?.replace(/_/g, ' ')}</p>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Action Modal */}
         <AnimatePresence>
           {showModal && selectedW && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl">
+                className="bg-white rounded-3xl p-5 sm:p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-5">
                   <h3 className="font-semibold text-gray-800 text-lg">Withdrawal Request</h3>
                   <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-lg"><FiX /></button>
@@ -174,15 +203,15 @@ export default function AdminWithdrawals() {
                     ['Requested', new Date(selectedW.requestedAt).toLocaleString('en-IN')],
                     ['Status', selectedW.status],
                   ].map(([k, v]) => (
-                    <div key={k} className="flex justify-between">
-                      <span className="text-gray-500">{k}</span>
-                      <span className="font-medium text-gray-800 capitalize">{v}</span>
+                    <div key={k} className="flex justify-between gap-3">
+                      <span className="text-gray-500 shrink-0">{k}</span>
+                      <span className="font-medium text-gray-800 capitalize text-right break-words">{v}</span>
                     </div>
                   ))}
                   {selectedW.notes && (
                     <div className="pt-2 border-t border-gray-200">
                       <p className="text-gray-500">Seller Notes:</p>
-                      <p className="text-gray-700 text-xs mt-1">{selectedW.notes}</p>
+                      <p className="text-gray-700 text-xs mt-1 break-words">{selectedW.notes}</p>
                     </div>
                   )}
                 </div>
@@ -192,9 +221,9 @@ export default function AdminWithdrawals() {
                   <div className="bg-blue-50 rounded-xl p-3 mb-5 text-xs space-y-1">
                     <p className="font-semibold text-blue-800 mb-2">Bank Details</p>
                     {Object.entries(selectedW.seller.bankDetails).map(([k, v]) => v ? (
-                      <div key={k} className="flex justify-between text-blue-700">
-                        <span className="capitalize">{k.replace(/([A-Z])/g, ' $1').trim()}</span>
-                        <span className="font-medium">{v}</span>
+                      <div key={k} className="flex justify-between gap-3 text-blue-700">
+                        <span className="capitalize shrink-0">{k.replace(/([A-Z])/g, ' $1').trim()}</span>
+                        <span className="font-medium text-right break-words">{v}</span>
                       </div>
                     ) : null)}
                   </div>
@@ -214,7 +243,7 @@ export default function AdminWithdrawals() {
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col xs:flex-row gap-2">
                   {selectedW.status === 'pending' && (
                     <>
                       <button onClick={() => handleUpdate('approved')} disabled={updating}
@@ -222,7 +251,7 @@ export default function AdminWithdrawals() {
                         <FiCheck className="w-4 h-4" /> Approve
                       </button>
                       <button onClick={() => handleUpdate('rejected')} disabled={updating}
-                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-60 text-sm">
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-violet-600 text-white rounded-xl hover:bg-violet-700 disabled:opacity-60 text-sm">
                         <FiX className="w-4 h-4" /> Reject
                       </button>
                     </>
@@ -238,7 +267,6 @@ export default function AdminWithdrawals() {
             </div>
           )}
         </AnimatePresence>
-      </main>
-    </div>
+    </AdminPageWrapper>
   );
 }

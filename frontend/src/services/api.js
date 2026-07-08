@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: 'https://multivender-website-1.onrender.com/api/v1',
   withCredentials: true,
 });
 
@@ -21,7 +21,7 @@ api.interceptors.response.use(
 
 // Seller API uses seller token
 const sellerApi = axios.create({
-  baseURL: '/api/v1',
+  baseURL: 'https://multivender-website-1.onrender.com/api/v1',
   withCredentials: true,
 });
 sellerApi.interceptors.request.use((config) => {
@@ -39,7 +39,7 @@ sellerApi.interceptors.response.use(
 
 // Courier API uses courier token
 const courierApi = axios.create({
-  baseURL: '/api/v1',
+  baseURL: 'https://multivender-website-1.onrender.com/api/v1',
   withCredentials: true,
 });
 courierApi.interceptors.request.use((config) => {
@@ -124,6 +124,7 @@ export const wishlistAPI = {
 
 export const reviewAPI = {
   getByProduct: (productId, params) => api.get(`/reviews/product/${productId}`, { params }),
+  getMyReviews: () => api.get('/reviews/my-reviews'),
   create: (data) => api.post('/reviews', data),
   update: (id, data) => api.put(`/reviews/${id}`, data),
   delete: (id) => api.delete(`/reviews/${id}`),
@@ -161,6 +162,7 @@ export const bannerAPI = {
 export const returnAPI = {
   create: (data) => api.post('/returns', data),
   getMy: () => api.get('/returns/my'),
+  getMyReturns: () => api.get('/returns/my'),
   adminGetAll: (params) => api.get('/returns', { params }),
   adminUpdate: (id, data) => api.put(`/returns/${id}`, data),
 };
@@ -181,6 +183,8 @@ export const notificationAPI = {
   getMy: () => api.get('/notifications/my'),
   markRead: (id) => api.put(`/notifications/${id}/read`),
   markAllRead: () => api.put('/notifications/mark-all-read'),
+  adminGetAll: () => api.get('/notifications/all'),
+  adminSend: (data) => api.post('/notifications', data),
   adminCreate: (data) => api.post('/notifications', data),
 };
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiStar, FiTrash2, FiEyeOff, FiEye } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { reviewAPI } from '../../services/api';
-import { AdminNav } from './AdminDashboard';
+import { AdminPageWrapper } from './AdminDashboard';
 
 const StarRating = ({ rating }) => (
   <div className="flex gap-0.5">
@@ -48,55 +48,49 @@ export default function AdminReviews() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminNav />
-      <main className="lg:ml-64 flex-1 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Review Management</h1>
-          <p className="text-sm text-gray-500">Total: {total} reviews</p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {loading ? (
-            <div className="text-center py-12 text-gray-400">Loading...</div>
-          ) : reviews.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">No reviews found</div>
-          ) : (
-            <table className="w-full">
+    <AdminPageWrapper title="Review Management" subtitle={`Total: ${total} reviews`}>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {loading ? (
+          <div className="text-center py-12 text-gray-400">Loading...</div>
+        ) : reviews.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">No reviews found</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[820px]">
               <thead className="bg-gray-50">
                 <tr>
                   {['Customer', 'Product', 'Rating', 'Review', 'Verified', 'Date', 'Actions'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">{h}</th>
+                    <th key={h} className="text-left px-3 sm:px-4 py-3 text-xs font-medium text-gray-500 uppercase whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {reviews.map(r => (
                   <tr key={r._id} className={`hover:bg-gray-50 ${r.isHidden ? 'opacity-50' : ''}`}>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    <td className="px-3 sm:px-4 py-3">
+                      <div className="flex items-center gap-2 max-w-[160px]">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
                           {r.user?.name?.charAt(0)}
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{r.user?.name}</p>
-                          <p className="text-xs text-gray-500">{r.user?.email}</p>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">{r.user?.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{r.user?.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-700 max-w-[150px] truncate">{r.product?.name}</td>
-                    <td className="px-4 py-3"><StarRating rating={r.rating} /></td>
-                    <td className="px-4 py-3 text-sm text-gray-600 max-w-[200px]">
-                      <p className="font-medium">{r.title}</p>
+                    <td className="px-3 sm:px-4 py-3 text-sm text-gray-700 max-w-[150px] truncate">{r.product?.name}</td>
+                    <td className="px-3 sm:px-4 py-3"><StarRating rating={r.rating} /></td>
+                    <td className="px-3 sm:px-4 py-3 text-sm text-gray-600 max-w-[200px]">
+                      <p className="font-medium truncate">{r.title}</p>
                       <p className="text-gray-500 text-xs line-clamp-2">{r.comment}</p>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 sm:px-4 py-3">
                       {r.isVerifiedPurchase && (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">✓ Verified</span>
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 whitespace-nowrap">✓ Verified</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString('en-IN')}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 sm:px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{new Date(r.createdAt).toLocaleDateString('en-IN')}</td>
+                    <td className="px-3 sm:px-4 py-3">
                       <div className="flex items-center gap-2">
                         <button onClick={() => handleToggleVisibility(r._id)} title={r.isHidden ? 'Show' : 'Hide'}
                           className={`${r.isHidden ? 'text-green-600 hover:text-green-800' : 'text-orange-600 hover:text-orange-800'}`}>
@@ -111,9 +105,9 @@ export default function AdminReviews() {
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
-      </main>
-    </div>
+          </div>
+        )}
+      </div>
+    </AdminPageWrapper>
   );
 }

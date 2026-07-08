@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiBox, FiAlertTriangle, FiEdit2, FiSave } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { sellerAPI } from '../../services/api';
+import SellerLayout from './SellerLayout';
 
 export default function SellerInventory() {
   const [products, setProducts] = useState([]);
@@ -30,7 +31,8 @@ export default function SellerInventory() {
   const outOfStock = products.filter(p => p.stock === 0);
 
   return (
-    <div className="p-8">
+    <SellerLayout>
+      <div className="p-0 sm:p-2 lg:p-4">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Inventory Management</h1>
 
       {/* Alerts */}
@@ -130,6 +132,7 @@ export default function SellerInventory() {
           </table>
         )}
       </div>
-    </div>
+      </div>
+    </SellerLayout>
   );
 }

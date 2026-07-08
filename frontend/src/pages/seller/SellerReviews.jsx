@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiStar, FiMessageSquare } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { sellerAPI } from '../../services/api';
+import SellerLayout from './SellerLayout';
 
 const StarRating = ({ rating }) => (
   <div className="flex gap-0.5">
@@ -39,7 +40,8 @@ export default function SellerReviews() {
   const avgRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : 0;
 
   return (
-    <div className="p-8">
+    <SellerLayout>
+      <div className="p-0 sm:p-2 lg:p-4">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Reviews & Ratings</h1>
         <div className="flex items-center gap-2">
@@ -97,7 +99,7 @@ export default function SellerReviews() {
                             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none" />
                           <div className="flex gap-2">
                             <button onClick={() => handleReply(r._id)} disabled={submitting}
-                              className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-700 disabled:opacity-50">
+                              className="bg-red-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-700 disabled:opacity-50">
                               {submitting ? 'Posting...' : 'Post Reply'}
                             </button>
                             <button onClick={() => { setReplyingId(null); setReplyText(''); }}
@@ -120,6 +122,7 @@ export default function SellerReviews() {
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </SellerLayout>
   );
 }

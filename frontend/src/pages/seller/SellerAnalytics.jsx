@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiTrendingUp, FiPackage, FiDollarSign, FiStar } from 'react-icons/fi';
 import { sellerAPI } from '../../services/api';
 import toast from 'react-hot-toast';
+import SellerLayout from './SellerLayout';
 
 export default function SellerAnalytics() {
   const [stats, setStats] = useState(null);
@@ -37,19 +38,20 @@ export default function SellerAnalytics() {
     }).catch(() => toast.error('Failed to load analytics')).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="p-8 text-center text-gray-400">Loading analytics...</div>;
+  if (loading) return <SellerLayout><div className="p-0 sm:p-2 lg:p-4 text-center text-gray-400">Loading analytics...</div></SellerLayout>;
 
   const maxRevenue = Math.max(...revenueData.map(([, v]) => v), 1);
 
   return (
-    <div className="p-8">
+    <SellerLayout>
+      <div className="p-0 sm:p-2 lg:p-4">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Sales Analytics</h1>
 
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-4 gap-4 mb-6">
           {[
-            { label: 'Total Products', value: stats.totalProducts, icon: FiPackage, color: 'bg-blue-50 text-blue-700' },
+            { label: 'Total Products', value: stats.totalProducts, icon: FiPackage, color: 'bg-red-50 text-red-700' },
             { label: 'Total Orders', value: stats.totalOrders, icon: FiTrendingUp, color: 'bg-green-50 text-green-700' },
             { label: 'Total Revenue', value: `₹${(stats.totalRevenue || 0).toLocaleString('en-IN')}`, icon: FiDollarSign, color: 'bg-yellow-50 text-yellow-700' },
             { label: 'Avg. Rating', value: stats.avgRating?.toFixed(1) || '—', icon: FiStar, color: 'bg-purple-50 text-purple-700' },
@@ -109,6 +111,7 @@ export default function SellerAnalytics() {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </SellerLayout>
   );
 }

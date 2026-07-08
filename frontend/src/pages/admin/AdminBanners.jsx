@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiPlus, FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight, FiX } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { bannerAPI } from '../../services/api';
-import { AdminNav } from './AdminDashboard';
+import { AdminPageWrapper } from './AdminDashboard';
 
 const emptyForm = { title: '', image: '', mobileImage: '', redirectLink: '', type: 'desktop', category: '', sortOrder: 0, startDate: '', endDate: '' };
 
@@ -64,12 +64,13 @@ export default function AdminBanners() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminNav />
-      <main className="lg:ml-64 flex-1 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Banner Management</h1>
-          <button onClick={openCreate} className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors">
+    <AdminPageWrapper title="Banner Management" subtitle="Manage homepage and campaign banners">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Banner Management</h1>
+            <p className="text-sm text-gray-500 mt-1">Manage homepage and campaign banners</p>
+          </div>
+          <button onClick={openCreate} className="flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors w-full sm:w-auto">
             <FiPlus className="w-4 h-4" /> Add Banner
           </button>
         </div>
@@ -77,7 +78,7 @@ export default function AdminBanners() {
         {loading ? (
           <div className="text-center py-20 text-gray-400">Loading...</div>
         ) : (
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
             {banners.map(banner => (
               <motion.div key={banner._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                 className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
@@ -92,10 +93,10 @@ export default function AdminBanners() {
                 </div>
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-900 mb-1">{banner.title}</h3>
-                  {banner.redirectLink && <p className="text-xs text-blue-600 mb-2 truncate">{banner.redirectLink}</p>}
+                  {banner.redirectLink && <p className="text-xs text-blue-600 mb-2 break-all">{banner.redirectLink}</p>}
                   {banner.startDate && <p className="text-xs text-gray-500">From: {new Date(banner.startDate).toLocaleDateString('en-IN')}</p>}
                   {banner.endDate && <p className="text-xs text-gray-500">Until: {new Date(banner.endDate).toLocaleDateString('en-IN')}</p>}
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex flex-wrap gap-2 mt-3">
                     <button onClick={() => openEdit(banner)} className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800">
                       <FiEdit2 className="w-3 h-3" /> Edit
                     </button>
@@ -114,10 +115,15 @@ export default function AdminBanners() {
         )}
 
         {showModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
-              <h2 className="text-lg font-bold mb-4">{editId ? 'Edit Banner' : 'Add Banner'}</h2>
+              className="bg-white rounded-2xl p-4 sm:p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold">{editId ? 'Edit Banner' : 'Add Banner'}</h2>
+                <button onClick={() => setShowModal(false)} className="p-2 rounded-lg hover:bg-gray-100" aria-label="Close modal">
+                  <FiX className="w-4 h-4 text-gray-600" />
+                </button>
+              </div>
               <div className="space-y-4">
                 {[
                   { label: 'Title *', key: 'title', type: 'text' },
@@ -147,7 +153,7 @@ export default function AdminBanners() {
                   <img src={form.image} alt="preview" className="w-full h-32 object-cover rounded-lg" onError={e => e.target.style.display = 'none'} />
                 </div>
               )}
-              <div className="flex gap-3 mt-6">
+              <div className="flex flex-col sm:flex-row gap-3 mt-6">
                 <button onClick={handleSave} disabled={saving}
                   className="flex-1 bg-gray-900 text-white py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50">
                   {saving ? 'Saving...' : 'Save Banner'}
@@ -159,7 +165,6 @@ export default function AdminBanners() {
             </motion.div>
           </div>
         )}
-      </main>
-    </div>
+    </AdminPageWrapper>
   );
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { commissionAPI, adminAPI } from '../../services/api';
-import { AdminNav } from './AdminDashboard';
+import { AdminPageWrapper } from './AdminDashboard';
 
 export default function AdminCommission() {
   const [commissions, setCommissions] = useState([]);
@@ -75,33 +75,31 @@ export default function AdminCommission() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminNav />
-      <main className="lg:ml-64 flex-1 p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Commission Management</h1>
-        <p className="text-gray-500 text-sm mb-6">Priority: Seller Commission {'>'} Category Commission {'>'} Global Commission</p>
+    <AdminPageWrapper title="Commission Management" subtitle="Priority: Seller Commission > Category Commission > Global Commission">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Commission Management</h1>
+        <p className="text-sm text-gray-500 mb-4 sm:mb-6">Priority: Seller Commission {'>'} Category Commission {'>'} Global Commission</p>
 
-        <div className="grid grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Global Commission */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Global Commission</h2>
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-bold text-gray-900 mb-2 sm:mb-4">Global Commission</h2>
             <p className="text-sm text-gray-500 mb-3">Applied to all products by default</p>
-            <div className="flex gap-3 items-center">
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
               <div className="relative flex-1">
                 <input type="number" min="0" max="100" value={globalPct} onChange={e => setGlobalPct(e.target.value)}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm pr-8" />
                 <span className="absolute right-3 top-2 text-gray-500 text-sm">%</span>
               </div>
               <button onClick={saveGlobal} disabled={saving}
-                className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50">
+                className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 w-full sm:w-auto">
                 Save
               </button>
             </div>
           </div>
 
           {/* Category Commission */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Category Commission</h2>
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-bold text-gray-900 mb-2 sm:mb-4">Category Commission</h2>
             <select value={catForm.category} onChange={e => setCatForm({...catForm, category: e.target.value})}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3">
               <option value="">Select Category</option>
@@ -115,15 +113,15 @@ export default function AdminCommission() {
                 <span className="absolute right-3 top-2 text-gray-500 text-sm">%</span>
               </div>
               <button onClick={saveCategoryComm} disabled={saving}
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50">
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 w-full sm:w-auto">
                 Set
               </button>
             </div>
           </div>
 
           {/* Seller Commission */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Seller Commission</h2>
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-bold text-gray-900 mb-2 sm:mb-4">Seller Commission</h2>
             <select value={sellerForm.sellerId} onChange={e => setSellerForm({...sellerForm, sellerId: e.target.value})}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3">
               <option value="">Select Seller</option>
@@ -137,7 +135,7 @@ export default function AdminCommission() {
                 <span className="absolute right-3 top-2 text-gray-500 text-sm">%</span>
               </div>
               <button onClick={saveSellerComm} disabled={saving}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50">
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 w-full sm:w-auto">
                 Set
               </button>
             </div>
@@ -146,7 +144,7 @@ export default function AdminCommission() {
 
         {/* Existing Commissions Table */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
+          <div className="p-4 sm:p-6 border-b border-gray-100">
             <h2 className="text-lg font-bold text-gray-900">All Commission Rules</h2>
           </div>
           {loading ? (
@@ -154,38 +152,64 @@ export default function AdminCommission() {
           ) : commissions.length === 0 ? (
             <div className="text-center py-12 text-gray-400">No commission rules set</div>
           ) : (
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  {['Type', 'Target', 'Commission %', 'Last Updated', 'Action'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
+            <>
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full min-w-[640px]">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      {['Type', 'Target', 'Commission %', 'Last Updated', 'Action'].map(h => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {commissions.map(c => (
+                      <tr key={c._id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            c.type === 'global' ? 'bg-gray-100 text-gray-700' :
+                            c.type === 'category' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                          }`}>{c.type}</span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700">{c.category || c.seller?.shopName || 'All Products'}</td>
+                        <td className="px-4 py-3 text-sm font-bold text-gray-900">{c.percentage}%</td>
+                        <td className="px-4 py-3 text-sm text-gray-500">{new Date(c.updatedAt).toLocaleDateString('en-IN')}</td>
+                        <td className="px-4 py-3">
+                          {c.type !== 'global' && (
+                            <button onClick={() => deleteComm(c._id)} className="text-red-500 hover:text-red-700 text-sm">Delete</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="md:hidden divide-y divide-gray-100">
                 {commissions.map(c => (
-                  <tr key={c._id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
+                  <div key={c._id} className="p-4 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         c.type === 'global' ? 'bg-gray-100 text-gray-700' :
                         c.type === 'category' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
                       }`}>{c.type}</span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">{c.category || c.seller?.shopName || 'All Products'}</td>
-                    <td className="px-4 py-3 text-sm font-bold text-gray-900">{c.percentage}%</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{new Date(c.updatedAt).toLocaleDateString('en-IN')}</td>
-                    <td className="px-4 py-3">
+                      <span className="text-sm font-bold text-gray-900">{c.percentage}%</span>
+                    </div>
+                    <div className="text-sm text-gray-700">
+                      <p className="font-medium">{c.category || c.seller?.shopName || 'All Products'}</p>
+                      <p className="text-xs text-gray-500">{new Date(c.updatedAt).toLocaleDateString('en-IN')}</p>
+                    </div>
+                    <div className="flex justify-end">
                       {c.type !== 'global' && (
                         <button onClick={() => deleteComm(c._id)} className="text-red-500 hover:text-red-700 text-sm">Delete</button>
                       )}
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </>
           )}
         </div>
-      </main>
-    </div>
+    </AdminPageWrapper>
   );
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiSearch, FiX, FiShield, FiSlash } from 'react-icons/fi';
 import { userAPI } from '../../services/api';
-import { AdminNav } from './AdminDashboard';
+import { AdminPageWrapper } from './AdminDashboard';
 import { formatDateShort } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 
@@ -42,57 +42,55 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminNav />
-      <main className="lg:ml-64 flex-1 p-6">
-        <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-gray-900">Users</h1>
-          <p className="text-gray-500 mt-1">{total} total users</p>
-        </div>
+    <AdminPageWrapper title="Users" subtitle={`${total} total users`}>
+      {/* Search */}
+      <div className="relative mb-6 w-full sm:max-w-sm">
+        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search users..."
+          className="w-full pl-10 pr-9 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-violet-400 text-sm" />
+        {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"><FiX className="w-4 h-4" /></button>}
+      </div>
 
-        <div className="relative mb-6 max-w-sm">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search users..."
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-violet-400 text-sm" />
-          {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"><FiX className="w-4 h-4" /></button>}
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full">
+      {/* Table */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px]">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>{['User', 'Email', 'Phone', 'Role', 'Joined', 'Status', 'Actions'].map(h => (
-                <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">{h}</th>
+                <th key={h} className="text-left px-3 sm:px-4 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">{h}</th>
               ))}</tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {loading ? (
                 Array.from({ length: 8 }).map((_, i) => (
-                  <tr key={i}><td colSpan={7} className="px-4 py-3"><div className="h-10 bg-gray-100 animate-pulse rounded" /></td></tr>
+                  <tr key={i}><td colSpan={7} className="px-3 sm:px-4 py-3"><div className="h-10 bg-gray-100 animate-pulse rounded" /></td></tr>
                 ))
+              ) : users.length === 0 ? (
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-gray-400">No users found</td></tr>
               ) : users.map(user => (
                 <tr key={user._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
+                  <td className="px-3 sm:px-4 py-3 max-w-[160px]">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                         {user.name?.charAt(0).toUpperCase()}
                       </div>
-                      <p className="font-medium text-gray-800 text-sm">{user.name}</p>
+                      <p className="font-medium text-gray-800 text-sm truncate">{user.name}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{user.email}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{user.phone || '—'}</td>
-                  <td className="px-4 py-3">
-                    <span className={`badge text-xs px-2.5 py-1 ${user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}`}>
+                  <td className="px-3 sm:px-4 py-3 text-sm text-gray-600 max-w-[180px] truncate">{user.email}</td>
+                  <td className="px-3 sm:px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{user.phone || '—'}</td>
+                  <td className="px-3 sm:px-4 py-3">
+                    <span className={`badge text-xs px-2.5 py-1 whitespace-nowrap ${user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}`}>
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{formatDateShort(user.createdAt)}</td>
-                  <td className="px-4 py-3">
-                    <span className={`badge text-xs px-2.5 py-1 ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  <td className="px-3 sm:px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{formatDateShort(user.createdAt)}</td>
+                  <td className="px-3 sm:px-4 py-3">
+                    <span className={`badge text-xs px-2.5 py-1 whitespace-nowrap ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                       {user.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-3">
                     <div className="flex gap-1">
                       <button onClick={() => toggleRole(user)} title="Toggle Admin" className="p-2 text-violet-500 hover:bg-violet-50 rounded-lg transition-colors">
                         <FiShield className="w-4 h-4" />
@@ -107,7 +105,7 @@ export default function AdminUsers() {
             </tbody>
           </table>
         </div>
-      </main>
-    </div>
+      </div>
+    </AdminPageWrapper>
   );
 }

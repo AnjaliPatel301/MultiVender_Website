@@ -10,6 +10,10 @@ export const useWishlistStore = create((set, get) => ({
     return get().wishlist?.products?.map(p => p._id || p) || [];
   },
 
+  get items() {
+    return get().wishlist?.products || [];
+  },
+
   isInWishlist: (productId) => {
     const ids = get().wishlist?.products?.map(p => (p._id || p).toString()) || [];
     return ids.includes(productId.toString());
@@ -18,8 +22,10 @@ export const useWishlistStore = create((set, get) => ({
   fetchWishlist: async () => {
     try {
       const data = await wishlistAPI.get();
-      set({ wishlist: data.wishlist });
-    } catch {}
+      set({ wishlist: data.wishlist || data });
+    } catch {
+      set({ wishlist: null });
+    }
   },
 
   toggleWishlist: async (productId) => {
@@ -32,6 +38,18 @@ export const useWishlistStore = create((set, get) => ({
     } catch (error) {
       set({ isLoading: false });
       toast.error(error.message || 'Failed to update wishlist');
+    }
+  },
+
+  removeFromWishlist: async (productId) => {
+    set({ isLoading: true });
+    try {
+      await wishlistAPI.remove(productId);
+      await get().fetchWishlist();
+      set({ isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      toast.error(error.message || 'Failed to remove from wishlist');
     }
   },
 

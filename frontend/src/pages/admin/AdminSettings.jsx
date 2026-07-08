@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiSave } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { settingsAPI } from '../../services/api';
-import { AdminNav } from './AdminDashboard';
+import { AdminPageWrapper } from './AdminDashboard';
 
 const tabs = ['General', 'Payment', 'Shipping', 'Tax', 'SEO', 'Email'];
 
@@ -48,53 +48,54 @@ export default function AdminSettings() {
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminNav />
-      <main className="lg:ml-64 flex-1 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Website Settings</h1>
+    <AdminPageWrapper title="Website Settings" subtitle="Manage site-wide settings from one place.">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Website Settings</h1>
+            <p className="mt-1 text-sm text-gray-500">Manage site-wide settings from one place.</p>
+          </div>
           <button onClick={handleSave} disabled={saving}
-            className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50">
-            <FiSave className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Settings'}
+            className="flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-800 disabled:opacity-50">
+            <FiSave className="h-4 w-4" /> {saving ? 'Saving...' : 'Save Settings'}
           </button>
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-gray-400">Loading...</div>
+          <div className="py-12 text-center text-gray-400">Loading...</div>
         ) : (
-          <div className="flex gap-6">
-            {/* Tabs */}
-            <div className="w-48 shrink-0">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-2">
-                {tabs.map(tab => (
-                  <button key={tab} onClick={() => setActiveTab(tab)}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === tab ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-50'}`}>
-                    {tab}
-                  </button>
-                ))}
+          <div className="flex flex-col gap-4 xl:flex-row xl:gap-6">
+            <div className="w-full xl:w-48 xl:shrink-0">
+              <div className="rounded-2xl border border-gray-100 bg-white p-2 shadow-sm">
+                <div className="flex gap-2 overflow-x-auto pb-1 xl:flex-col xl:gap-1">
+                  {tabs.map(tab => (
+                    <button key={tab} onClick={() => setActiveTab(tab)}
+                      className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-left text-sm font-medium transition-colors xl:w-full ${activeTab === tab ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-50'}`}>
+                      {tab}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="flex-1 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
               {activeTab === 'General' && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold mb-4">General Settings</h2>
+                  <h2 className="mb-4 text-lg font-bold">General Settings</h2>
                   {renderField('Website Name', 'siteName', 'text', 'TECAISHOP')}
                   {renderField('Logo URL', 'logo', 'url', 'https://...')}
                   {renderField('Favicon URL', 'favicon', 'url', 'https://...')}
                   {renderField('Contact Email', 'contactEmail', 'email', 'admin@example.com')}
                   {renderField('Contact Phone', 'contactPhone', 'text', '+91 9999999999')}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">Business Address</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Business Address</label>
                     <textarea value={settings.address || ''} onChange={e => set('address', e.target.value)} rows={3}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none" />
+                      className="w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm" />
                   </div>
                 </div>
               )}
               {activeTab === 'Payment' && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold mb-4">Payment Settings</h2>
+                  <h2 className="mb-4 text-lg font-bold">Payment Settings</h2>
                   {renderToggle('Cash on Delivery (COD)', 'codEnabled', 'Allow customers to pay on delivery')}
                   {renderField('Razorpay Key ID', 'razorpayKeyId', 'text', 'rzp_...')}
                   {renderField('Razorpay Key Secret', 'razorpayKeySecret', 'password', '***')}
@@ -103,33 +104,33 @@ export default function AdminSettings() {
               )}
               {activeTab === 'Shipping' && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold mb-4">Shipping Settings</h2>
+                  <h2 className="mb-4 text-lg font-bold">Shipping Settings</h2>
                   {renderField('Default Shipping Charge (₹)', 'defaultShippingCharge', 'number', '50')}
                   {renderField('Free Shipping Threshold (₹)', 'freeShippingThreshold', 'number', '499')}
                 </div>
               )}
               {activeTab === 'Tax' && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold mb-4">Tax Settings</h2>
+                  <h2 className="mb-4 text-lg font-bold">Tax Settings</h2>
                   {renderField('GST Percentage (%)', 'gstPercentage', 'number', '18')}
                   <p className="text-sm text-gray-500">Category-specific taxes can be configured per category in the Category Management section.</p>
                 </div>
               )}
               {activeTab === 'SEO' && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold mb-4">SEO Settings</h2>
+                  <h2 className="mb-4 text-lg font-bold">SEO Settings</h2>
                   {renderField('Meta Title', 'metaTitle', 'text', 'TECAISHOP - Premium Fashion')}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">Meta Description</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Meta Description</label>
                     <textarea value={settings.metaDescription || ''} onChange={e => set('metaDescription', e.target.value)} rows={3}
                       placeholder="Website description for search engines..."
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none" />
+                      className="w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm" />
                   </div>
                 </div>
               )}
               {activeTab === 'Email' && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold mb-4">Email (SMTP) Settings</h2>
+                  <h2 className="mb-4 text-lg font-bold">Email (SMTP) Settings</h2>
                   {renderField('SMTP Host', 'smtpHost', 'text', 'smtp.gmail.com')}
                   {renderField('SMTP Port', 'smtpPort', 'number', '587')}
                   {renderField('SMTP Username', 'smtpUser', 'email', 'your@email.com')}
@@ -139,7 +140,6 @@ export default function AdminSettings() {
             </div>
           </div>
         )}
-      </main>
-    </div>
+    </AdminPageWrapper>
   );
 }

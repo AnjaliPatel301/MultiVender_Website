@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiBell, FiCheckCircle } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { notificationAPI } from '../../services/api';
+import SellerLayout from './SellerLayout';
 
 export default function SellerNotifications() {
   const [notifications, setNotifications] = useState([]);
@@ -27,7 +28,8 @@ export default function SellerNotifications() {
   };
 
   return (
-    <div className="p-8">
+    <SellerLayout>
+      <div className="p-0 sm:p-2 lg:p-4">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">
           Notifications {unread > 0 && <span className="ml-2 px-2 py-0.5 rounded-full text-sm bg-red-100 text-red-600 font-bold">{unread}</span>}
@@ -60,6 +62,7 @@ export default function SellerNotifications() {
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </SellerLayout>
   );
 }

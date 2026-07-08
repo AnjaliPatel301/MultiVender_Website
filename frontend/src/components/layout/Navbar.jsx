@@ -122,7 +122,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link to="/" className="flex items-center flex-shrink-0">
-            <img src="/tecai.png" alt="TECAISHOP" className="h-8 sm:h-10 md:h-12 lg:h-16 w-auto object-contain" />
+            <img src="/tecai.png" alt="TECAISHOP" className="h-16 sm:h-16 md:h-16 lg:h-16 w-auto object-contain" />
           </Link>
 
           {/* Search */}

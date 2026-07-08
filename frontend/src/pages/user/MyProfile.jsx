@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { FiUser, FiSave, FiPlus, FiTrash2, FiMapPin, FiCamera, FiPhone, FiMail, FiEdit2, FiCheck } from 'react-icons/fi';
+import { FiUser, FiSave, FiPlus, FiTrash2, FiMapPin } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { userAPI } from '../../services/api';
-
-const INPUT_CLS = 'w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent transition-all';
-const LABEL_CLS = 'block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5';
 
 export default function MyProfile() {
   const { user, setUser } = useAuthStore();
@@ -16,7 +12,6 @@ export default function MyProfile() {
   const [addrForm, setAddrForm] = useState({ name: '', phone: '', street: '', city: '', state: '', pincode: '', isDefault: false });
   const [showAddrForm, setShowAddrForm] = useState(false);
   const [savingAddr, setSavingAddr] = useState(false);
-  const [editingProfile, setEditingProfile] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -31,8 +26,7 @@ export default function MyProfile() {
     try {
       const data = await userAPI.updateProfile(form);
       setUser(data.user);
-      toast.success('Profile updated successfully!');
-      setEditingProfile(false);
+      toast.success('Profile updated!');
     } catch (err) { toast.error(err.message); }
     finally { setSaving(false); }
   };
@@ -45,7 +39,7 @@ export default function MyProfile() {
       setAddresses(data.addresses || []);
       setAddrForm({ name: '', phone: '', street: '', city: '', state: '', pincode: '', isDefault: false });
       setShowAddrForm(false);
-      toast.success('Address saved!');
+      toast.success('Address added!');
     } catch (err) { toast.error(err.message); }
     finally { setSavingAddr(false); }
   };
@@ -59,224 +53,112 @@ export default function MyProfile() {
   };
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">My Profile</h2>
-        <p className="text-sm text-gray-500 mt-0.5">Manage your personal information and addresses</p>
-      </div>
+    <div className="space-y-6">
+      <h2 className="text-xl font-bold text-gray-900">My Profile</h2>
 
-      {/* Profile Card */}
-      <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
-        {/* Cover */}
-        <div className="h-24 bg-gradient-to-r from-rose-400 via-red-400 to-fuchsia-400 relative">
-          <div className="absolute inset-0 opacity-20"
-            style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-        </div>
-
-        {/* Avatar + Info */}
-        <div className="px-6 pb-6">
-          <div className="flex items-end gap-4 -mt-8 mb-5">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-lg bg-gray-100 overflow-hidden">
-                {form.avatar
-                  ? <img src={form.avatar} alt="" className="w-full h-full object-cover" />
-                  : <div className="w-full h-full bg-gradient-to-br from-rose-400 to-red-500 flex items-center justify-center text-white text-2xl font-bold">
-                      {user?.name?.charAt(0)?.toUpperCase()}
-                    </div>}
-              </div>
-              <button className="absolute -bottom-1 -right-1 w-6 h-6 bg-rose-500 rounded-lg flex items-center justify-center shadow-md">
-                <FiCamera className="w-3 h-3 text-white" />
-              </button>
+      {/* Profile Form */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><FiUser className="w-4 h-4" /> Personal Information</h3>
+        <form onSubmit={handleUpdateProfile} className="space-y-4">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+              {form.avatar ? <img src={form.avatar} alt="" className="w-full h-full object-cover" /> : <FiUser className="w-6 h-6 text-gray-400" />}
             </div>
-            <div className="flex-1 pb-1">
-              <h3 className="font-bold text-gray-900 text-lg leading-tight">{user?.name}</h3>
-              <p className="text-sm text-gray-500">{user?.email}</p>
+            <div className="flex-1">
+              <label className="text-sm font-medium text-gray-700 mb-1 block">Profile Photo URL</label>
+              <input type="url" value={form.avatar} onChange={e => setForm({...form, avatar: e.target.value})} placeholder="https://..."
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
             </div>
-            <button onClick={() => setEditingProfile(!editingProfile)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold transition-all ${
-                editingProfile ? 'bg-gray-100 text-gray-700' : 'bg-rose-500 text-white shadow-md shadow-rose-200'
-              }`}>
-              {editingProfile ? <><FiCheck className="w-4 h-4" /> Cancel</> : <><FiEdit2 className="w-4 h-4" /> Edit</>}
-            </button>
           </div>
-
-          {/* Static Info Display */}
-          {!editingProfile ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl">
-                <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                  <FiUser className="w-4 h-4 text-rose-500" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 font-medium">Full Name</p>
-                  <p className="text-sm font-semibold text-gray-900">{form.name || '—'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl">
-                <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                  <FiPhone className="w-4 h-4 text-rose-500" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 font-medium">Mobile</p>
-                  <p className="text-sm font-semibold text-gray-900">{form.phone || '—'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl sm:col-span-2">
-                <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                  <FiMail className="w-4 h-4 text-rose-500" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 font-medium">Email Address</p>
-                  <p className="text-sm font-semibold text-gray-900">{user?.email}</p>
-                </div>
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">Full Name</label>
+              <input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
             </div>
-          ) : (
-            <motion.form initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-              onSubmit={handleUpdateProfile} className="space-y-4">
-              <div>
-                <label className={LABEL_CLS}>Profile Photo URL</label>
-                <input type="url" value={form.avatar}
-                  onChange={e => setForm({ ...form, avatar: e.target.value })}
-                  placeholder="https://example.com/photo.jpg"
-                  className={INPUT_CLS} />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className={LABEL_CLS}>Full Name</label>
-                  <input type="text" value={form.name}
-                    onChange={e => setForm({ ...form, name: e.target.value })}
-                    className={INPUT_CLS} />
-                </div>
-                <div>
-                  <label className={LABEL_CLS}>Mobile Number</label>
-                  <input type="tel" value={form.phone}
-                    onChange={e => setForm({ ...form, phone: e.target.value })}
-                    className={INPUT_CLS} />
-                </div>
-              </div>
-              <button type="submit" disabled={saving}
-                className="flex items-center gap-2 bg-rose-500 text-white px-5 py-2.5 rounded-2xl text-sm font-semibold hover:bg-rose-600 transition-colors disabled:opacity-60 shadow-md shadow-rose-200">
-                <FiSave className="w-4 h-4" />
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </motion.form>
-          )}
-        </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">Mobile Number</label>
+              <input type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-1 block">Email Address</label>
+            <input type="email" value={user?.email || ''} disabled className="w-full border border-gray-100 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-500" />
+            <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <span>Member since: {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { dateStyle: 'long' }) : '-'}</span>
+          </div>
+          <button type="submit" disabled={saving}
+            className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50">
+            <FiSave className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </form>
       </div>
 
       {/* Addresses */}
-      <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
-        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-rose-50 rounded-xl flex items-center justify-center">
-              <FiMapPin className="w-4 h-4 text-rose-500" />
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900 text-sm">Saved Addresses</h3>
-              <p className="text-xs text-gray-400">{addresses.length} address{addresses.length !== 1 ? 'es' : ''} saved</p>
-            </div>
-          </div>
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-gray-900 flex items-center gap-2"><FiMapPin className="w-4 h-4" /> Saved Addresses</h3>
           <button onClick={() => setShowAddrForm(!showAddrForm)}
-            className="flex items-center gap-1.5 bg-rose-500 text-white px-3.5 py-2 rounded-2xl text-xs font-semibold hover:bg-rose-600 transition-colors shadow-md shadow-rose-200">
-            <FiPlus className="w-3.5 h-3.5" /> Add New
+            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
+            <FiPlus className="w-4 h-4" /> Add Address
           </button>
         </div>
-
-        <div className="p-5 space-y-4">
-          {/* Add Address Form */}
-          <AnimatePresenceWrapper show={showAddrForm}>
-            <motion.form initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }} onSubmit={handleAddAddress}
-              className="bg-rose-50/50 border border-rose-100 rounded-2xl p-4 space-y-3 overflow-hidden">
-              <p className="text-sm font-bold text-gray-900 mb-3">Add New Address</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { label: 'Full Name', key: 'name', type: 'text' },
-                  { label: 'Mobile', key: 'phone', type: 'tel' },
-                  { label: 'Street / Area', key: 'street', type: 'text' },
-                  { label: 'City', key: 'city', type: 'text' },
-                  { label: 'State', key: 'state', type: 'text' },
-                  { label: 'Pincode', key: 'pincode', type: 'text' },
-                ].map(f => (
-                  <div key={f.key}>
-                    <label className={LABEL_CLS}>{f.label}</label>
-                    <input type={f.type} value={addrForm[f.key]}
-                      onChange={e => setAddrForm({ ...addrForm, [f.key]: e.target.value })}
-                      required className={INPUT_CLS} />
-                  </div>
-                ))}
-              </div>
-              <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                <input type="checkbox" checked={addrForm.isDefault}
-                  onChange={e => setAddrForm({ ...addrForm, isDefault: e.target.checked })}
-                  className="w-4 h-4 rounded accent-rose-500" />
-                <span className="font-medium">Set as default address</span>
-              </label>
-              <div className="flex gap-2 pt-1">
-                <button type="submit" disabled={savingAddr}
-                  className="flex items-center gap-2 bg-rose-500 text-white px-4 py-2.5 rounded-2xl text-sm font-semibold hover:bg-rose-600 transition-colors disabled:opacity-60">
-                  <FiSave className="w-3.5 h-3.5" />
-                  {savingAddr ? 'Saving...' : 'Save Address'}
-                </button>
-                <button type="button" onClick={() => setShowAddrForm(false)}
-                  className="px-4 py-2.5 border border-gray-200 rounded-2xl text-sm text-gray-600 hover:bg-gray-50 transition-colors font-medium">
-                  Cancel
-                </button>
-              </div>
-            </motion.form>
-          </AnimatePresenceWrapper>
-
-          {/* Address List */}
-          {addresses.length === 0 && !showAddrForm ? (
-            <div className="text-center py-8">
-              <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <FiMapPin className="w-6 h-6 text-gray-300" />
-              </div>
-              <p className="text-sm font-semibold text-gray-500">No saved addresses</p>
-              <p className="text-xs text-gray-400 mt-1">Add an address for faster checkout</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {addresses.map((addr, idx) => (
-                <motion.div key={addr._id || idx}
-                  initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                  className={`relative p-4 rounded-2xl border transition-all ${
-                    addr.isDefault ? 'border-rose-200 bg-rose-50/50' : 'border-gray-100 bg-gray-50/50 hover:border-gray-200'
-                  }`}>
-                  {addr.isDefault && (
-                    <span className="absolute top-3 right-12 px-2 py-0.5 bg-rose-100 text-rose-600 text-xs font-semibold rounded-full">
-                      Default
-                    </span>
-                  )}
-                  <button onClick={() => handleDeleteAddress(addr._id)}
-                    className="absolute top-3 right-3 p-1.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
-                    <FiTrash2 className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="flex items-start gap-3 pr-16">
-                    <div className="w-8 h-8 bg-white rounded-xl border border-gray-200 flex items-center justify-center shrink-0 mt-0.5">
-                      <FiMapPin className="w-3.5 h-3.5 text-rose-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900">{addr.name}</p>
-                      <p className="text-sm text-gray-600">{addr.phone}</p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {addr.street}, {addr.city}, {addr.state} — {addr.pincode}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
+        {showAddrForm && (
+          <form onSubmit={handleAddAddress} className="bg-gray-50 rounded-xl p-4 mb-4 space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'Full Name', key: 'name', type: 'text' },
+                { label: 'Phone', key: 'phone', type: 'tel' },
+                { label: 'Street / Area', key: 'street', type: 'text' },
+                { label: 'City', key: 'city', type: 'text' },
+                { label: 'State', key: 'state', type: 'text' },
+                { label: 'Pincode', key: 'pincode', type: 'text' },
+              ].map(f => (
+                <div key={f.key}>
+                  <label className="text-xs text-gray-600 mb-1 block">{f.label}</label>
+                  <input type={f.type} value={addrForm[f.key]} onChange={e => setAddrForm({...addrForm, [f.key]: e.target.value})} required
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white" />
+                </div>
               ))}
             </div>
-          )}
-        </div>
+            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input type="checkbox" checked={addrForm.isDefault} onChange={e => setAddrForm({...addrForm, isDefault: e.target.checked})} className="rounded" />
+              Set as default address
+            </label>
+            <div className="flex gap-2">
+              <button type="submit" disabled={savingAddr}
+                className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50">
+                {savingAddr ? 'Saving...' : 'Save Address'}
+              </button>
+              <button type="button" onClick={() => setShowAddrForm(false)} className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600">Cancel</button>
+            </div>
+          </form>
+        )}
+        {addresses.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-4">No saved addresses</p>
+        ) : (
+          <div className="space-y-3">
+            {addresses.map(addr => (
+              <div key={addr._id} className="flex items-start justify-between p-4 border border-gray-100 rounded-xl">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-sm font-semibold text-gray-900">{addr.name}</p>
+                    {addr.isDefault && <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 font-medium">Default</span>}
+                  </div>
+                  <p className="text-sm text-gray-600">{addr.phone}</p>
+                  <p className="text-sm text-gray-600">{addr.street}, {addr.city}, {addr.state} - {addr.pincode}</p>
+                </div>
+                <button onClick={() => handleDeleteAddress(addr._id)} className="text-red-500 hover:text-red-700 p-1">
+                  <FiTrash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
-}
-
-// Simple animation wrapper
-function AnimatePresenceWrapper({ show, children }) {
-  if (!show) return null;
-  return children;
 }

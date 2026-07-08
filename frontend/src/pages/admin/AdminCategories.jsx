@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiTrash2, FiEdit2, FiX, FiCheck, FiChevronDown, FiChevronUp, FiTag, FiLock, FiPlus } from 'react-icons/fi';
 import { categoryAPI } from '../../services/api';
-import { AdminNav } from './AdminDashboard';
+import { AdminPageWrapper } from './AdminDashboard';
 import Button from '../../components/ui/Button';
 import toast from 'react-hot-toast';
 
@@ -88,16 +88,14 @@ export default function AdminCategories() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminNav />
-      <main className="lg:ml-64 flex-1 p-6">
-        <div className="flex items-center justify-between mb-8">
+    <AdminPageWrapper title="Categories" subtitle="4 fixed main categories — manage subcategories dynamically">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between mb-4 sm:mb-8">
           <div>
-            <h1 className="font-display text-3xl font-bold text-gray-900">Categories</h1>
-            <p className="text-gray-500 mt-1">4 fixed main categories — manage subcategories dynamically</p>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900">Categories</h1>
+            <p className="text-sm sm:text-base text-gray-500 mt-1">4 fixed main categories — manage subcategories dynamically</p>
           </div>
-          <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-2">
-            <FiLock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-3 sm:px-4 py-2">
+            <FiLock className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-amber-700 font-medium">
               Main categories are fixed. Add unlimited subcategories under each.
             </p>
@@ -105,7 +103,7 @@ export default function AdminCategories() {
         </div>
 
         {/* Info Banner */}
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6 flex items-start gap-3">
+        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-4 sm:mb-6 flex items-start gap-3">
           <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
             <span className="text-blue-600 text-sm font-bold">i</span>
           </div>
@@ -138,8 +136,8 @@ export default function AdminCategories() {
                 className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${cat.isActive ? 'border-gray-100' : 'border-gray-200 opacity-75'}`}
               >
                 {/* Category Header */}
-                <div className="flex items-center justify-between px-5 py-4">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-5 py-4">
+                  <div className="flex items-center gap-3 min-w-0">
                     {/* Fixed badge */}
                     <div className={`w-3 h-3 rounded-full flex-shrink-0 ${cat.isActive ? 'bg-green-400' : 'bg-gray-300'}`} />
                     <div>
@@ -178,7 +176,7 @@ export default function AdminCategories() {
 
                 {/* Subcategory Tags (collapsed preview) */}
                 {expandedId !== cat._id && cat.types?.length > 0 && (
-                  <div className="px-5 pb-4 flex flex-wrap gap-2">
+                  <div className="px-4 sm:px-5 pb-4 flex flex-wrap gap-2">
                     {cat.types.slice(0, 8).map(type => (
                       <span key={type} className="inline-flex items-center gap-1 bg-gray-50 text-gray-600 text-xs px-3 py-1 rounded-full border border-gray-100">
                         <FiTag className="w-2.5 h-2.5" /> {type}
@@ -204,7 +202,7 @@ export default function AdminCategories() {
                       exit={{ opacity: 0, height: 0 }}
                       className="border-t border-gray-100 bg-gray-50/50"
                     >
-                      <div className="px-5 py-4">
+                      <div className="px-4 sm:px-5 py-4">
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="text-sm font-semibold text-gray-700">
                             Subcategories ({cat.types?.length || 0})
@@ -214,7 +212,7 @@ export default function AdminCategories() {
 
                         {/* Existing types */}
                         {cat.types?.length > 0 ? (
-                          <div className="grid grid-cols-2 gap-2 mb-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                             {cat.types.map(type => (
                               <div key={type} className="flex items-center justify-between bg-white border border-gray-100 rounded-xl px-3 py-2 gap-2">
                                 {editingType[cat._id]?.oldType === type ? (
@@ -259,7 +257,7 @@ export default function AdminCategories() {
                         )}
 
                         {/* Add new subcategory */}
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <input
                             value={newTypes[cat._id] || ''}
                             onChange={e => setNewTypes(p => ({ ...p, [cat._id]: e.target.value }))}
@@ -270,7 +268,7 @@ export default function AdminCategories() {
                           <button
                             onClick={() => handleAddType(cat._id)}
                             disabled={addingType[cat._id]}
-                            className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-50 transition-colors flex-shrink-0"
+                            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-50 transition-colors flex-shrink-0"
                           >
                             <FiPlus className="w-4 h-4" />
                             {addingType[cat._id] ? 'Adding...' : 'Add'}
@@ -287,7 +285,6 @@ export default function AdminCategories() {
             ))}
           </div>
         )}
-      </main>
-    </div>
+    </AdminPageWrapper>
   );
 }

@@ -79,11 +79,18 @@ exports.updateTracking = async (req, res) => {
     return res.status(403).json({ success: false, message: 'Not authorized' });
 
   // Create tracking entry
-  const tracking = await TrackingUpdate.create({
+  const trackingData = {
     order: req.params.orderId,
     courier: req.courier._id,
-    status, location, note, deliveryPhoto, failureReason,
-  });
+    status, location, note, deliveryPhoto,
+  };
+  
+  // Only add failureReason if it has a value
+  if (failureReason && failureReason.trim()) {
+    trackingData.failureReason = failureReason;
+  }
+  
+  const tracking = await TrackingUpdate.create(trackingData);
 
   // Update order status
   const orderStatusMap = {
